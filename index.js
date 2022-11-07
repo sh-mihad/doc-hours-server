@@ -13,13 +13,29 @@ app.get("/",(req,res)=>{
     res.send("near-Health-Care server is runnig")
 })
 
-app.get("/test",(req,res)=>{
-    const user ={
-      a :  process.env.DB_USER,
-      b : process.env.DB_PASSWORD
-    }
-    res.send(user)
-})
+
+
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.pkgzac3.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+async function run (){
+   try{
+    const serviceCollection = client.db("service-project").collection("Services");
+    const doc = {
+        title: "Record of a Shriveled Datum",
+        content: "No bytes, no problem. Just insert a document, in MongoDB",
+      }
+      const result = await serviceCollection.insertOne(doc);
+      console.log(result);
+   }
+   finally {
+
+   }
+}
+run().catch(error=>console.log(error))
+
 
 
 app.listen(port,()=>{
