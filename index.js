@@ -69,6 +69,19 @@ async function run (){
         const result = await cursor.toArray()
         res.send(result)
     })
+
+    // get reviws using email address
+    app.get("/myreviews", async(req,res)=>{
+        let query ={}
+       if(req.query.email){
+        query ={
+            email : req.query.email
+        }
+       }
+       const curson = reviewCollection.find(query);
+       const result = await curson.toArray();
+       res.send(result)
+    })
      
    }
    finally {
