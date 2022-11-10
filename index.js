@@ -20,6 +20,24 @@ app.get("/", (req, res) => {
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.pkgzac3.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+function jwtVerify (req,res,next){
+    const authorized = req.headers.authorizaton;
+    if(!authorized){
+        return res.status(401).send({messege:"Unauthorized access"})
+    }
+    const token = authorized.split(" ")[1]
+    jwt.verify(token,process.env.SERVICE_TOKEN,function(err,decoded){
+        if(err){
+            return res.status(401).send({messege:"Unauthorized access"}) 
+        }
+        req.decoded = decoded;
+        next()
+    })
+
+}
+
+
 async function run() {
     try {
         const serviceCollection = client.db("service-project").collection("Services");
@@ -72,7 +90,11 @@ async function run() {
         })
 
         // get reviws using email address
-        app.get("/myreviews", async (req, res) => {
+        app.get("/myreviews",jwtVerify, async (req, res) => {
+            const decoded = req.decoded;
+            if(decoded.email !==req.query.email){
+                return res.status(403).send({message:"forbiden"})
+            }
             let query = {}
             if (req.query.email) {
                 query = {
