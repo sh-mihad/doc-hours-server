@@ -5,6 +5,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 const port = process.env.PORT || 5000;
 require('dotenv').config()
+var jwt = require('jsonwebtoken');
 
 //midleware 
 app.use(cors())
@@ -99,7 +100,7 @@ async function run() {
             const result = await reviewCollection.findOne(query)
             res.send(result)
         })
-
+    
         // update review
         app.put("/update/:id", async(req, res) => {
             const id = req.params.id;
@@ -115,6 +116,17 @@ async function run() {
             res.send(result)
 
         })
+        // console.log(process.env.SERVICE_TOKEN)
+
+        //api for JWS token
+        app.post("/jwt",(req,res)=>{
+            const user = req.body;
+            // console.log(user);
+            const token = jwt.sign(user,process.env.SERVICE_TOKEN,{expiresIn:"1h"})
+            res.send({token})
+        })
+        
+
     }
     finally {
 
